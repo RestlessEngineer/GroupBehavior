@@ -12,3 +12,8 @@ Thus, instead of searching for an optimal algorithm of robots' behavior at each 
 ## Current state
 
 Right now, a very simple game strategy is suggested. It is assumed that the most favorable direction for the next step will give 2 points. The direction that is opposite to it will give 0. The others will give 1. How it all works can be seen in examples/simple_field
+
+
+## Acknowledgements
+
+Many thanks to the site https://www.redblobgames.com/pathfinding/a-star/ and Red Blob Games <redblobgames@gmail.com> for their work. My main data structures are based on their code
