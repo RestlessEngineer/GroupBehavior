@@ -1,8 +1,10 @@
 from RobotFileld import *
 from Graph import * 
+from Strategy import *
 import numpy as np
 from enum import Enum
 import random
+
 
 class MoveStrategy(Enum):
     PASSIVE = 0
@@ -10,14 +12,17 @@ class MoveStrategy(Enum):
 
 class Robot:
     
-    OBSERVE_RADIUS = 4.0
+    OBSERVE_RADIUS: float = 4.0
 
-    def __init__(self, field: RobotField, location: GridLocation, goal: GridLocation):
+    def __init__(self, field: RobotField, location: GridLocation, goal: GridLocation, 
+                 strategy = NashStrategy(), calc_profit = SimpleProfit()):
         self._field = field
         self.location = location
         self.goal = goal
         self.move_strategy = MoveStrategy.PASSIVE
         self.main_way = location
+        self.strategy = strategy
+        self.calculate_profit = calc_profit 
         self._update_main_way()
 
 
@@ -28,10 +33,12 @@ class Robot:
             neighbors += list(self._field.neighbors(self.location))
         return neighbors 
 
+
     def get_direction(self):
         x = self.main_way[0] - self.location[0]
         y = self.main_way[1] - self.location[1]
         return (x, y)
+
 
     def _update_main_way(self):
         # define main way
@@ -39,10 +46,11 @@ class Robot:
         path = reconstruct_path(came_from, self.location, self.goal)
         # next value after path is main
         if len(path) > 1:
-            self.main_way = path[1] 
-        #otherwise we don't excahge main way
+            self.main_way = path[1]
+        else:
+            self.main_way = self.location
 
-    # TODO: this maybe function from other class
+
     def create_profit_mtx(self, main_profits, adjacent_profits):
         profit_mtx = []
         if(len(adjacent_profits) == 0):
@@ -58,24 +66,9 @@ class Robot:
             profit_mtx.append(line)
         return profit_mtx
 
-    
-    # TODO: this maybe function from other class
+
     def get_strategy_profits(self, ways: list[GridLocation]):
-        profit_coords = {}
-        profits = []
-        for (i, way) in enumerate(ways):
-            # if way != self.location:
-            came_from, cost_so_far = a_star_search(self._field, self.main_way, way)
-            path = reconstruct_path(came_from, self.main_way, way)
-            # TODO: define particular function for strategies profit
-            profit = 2 - len(path)
-            profits.append(profit)
-            profit_coords[i] = way
-            # else:
-            #     profit_coords[i] = way
-            #     profit = 0
-        
-        return (profit_coords, profits)
+        return self.calculate_profit(self._field, ways,self.main_way)
 
 
     def get_crossed_strategy_profits(self, robots):
@@ -97,36 +90,12 @@ class Robot:
     
         return self.get_strategy_profits(ways)
             
-    
-    # TODO: min max trategy from game theory
-    def choose_strategy(self, profit_matix):
-        min_j = np.min(profit_matix, axis=1)
-        max_i = np.max(profit_matix, axis=0)
-        
-        # max_i min_j (mtx_{ij})
-        maxmin = np.max(min_j)
-
-        # max_i min_j (mtx_{ij})
-        minmax = np.min(max_i)
-
-        if(maxmin != minmax):
-            raise Exception(f'not pure solution. minmax: {minmax}, maxmin: {maxmin}')
-
-        strategies = []
-        for (i, val) in enumerate(min_j):
-            if val == minmax:
-                strategies.append(i)
-
-        if len(strategies) == 1:
-            return int(strategies[0])
-
-        #if there is more than one solution we have to chose one of them accidentally
-        return int(random.choice(strategies))
 
     def distance(self, robot):
         def loc_distance(loc1: GridLocation, loc2: GridLocation) -> float:
             return np.sqrt((loc1[0] - loc2[0])**2 + (loc1[1] - loc2[1])**2)
         return loc_distance(self.location, robot.location)
+
 
     def do_next_step(self, robots) -> GridLocation:
         if(self.location == self.goal):
@@ -151,7 +120,7 @@ class Robot:
         profit_matrix = np.array(profit_matrix, dtype=int)
         
         # get strategy index from profit matrix
-        strategy_num = self.choose_strategy(profit_matrix)
+        strategy_num = self.strategy.choose_strategy(profit_matrix)
         
         #update robot location
         self.location = profit_coords[strategy_num]
