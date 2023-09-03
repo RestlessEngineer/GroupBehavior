@@ -2,6 +2,7 @@ from RobotFileld import *
 from Graph import * 
 import numpy as np
 import random
+from scipy.optimize import linprog
 
 class Strategy:
     # define the best strategy
@@ -10,31 +11,51 @@ class Strategy:
         
 
 class NashStrategy(Strategy): 
-    # min max trategy from game theory https://en.wikipedia.org/wiki/Nash_equilibrium
-    def choose_strategy(self, profit_matix) -> int:
     
-        min_j = np.min(profit_matix, axis=1)
-        max_i = np.max(profit_matix, axis=0)
+    def _probability_mixed_strategies(self, profit_matrix: np.array) -> tuple[list[float]]:
+        min_profit = np.min(profit_matrix)
+        #matrix must be positive
+        if(min_profit <= 0):
+            profit_matrix += -min_profit + 1
+            min_profit = 1
+        
+        row, col = profit_matrix.shape
+        A = -profit_matrix.transpose()
+        b = -min_profit*np.ones(col)
+        f = np.ones(row) # minimisated function 
+        strategy_bounds = [(0, None)]*row
+        res = linprog(f, A_ub=A, b_ub=b, bounds=strategy_bounds)
+        return res.x/np.sum(res.x)
+
+
+
+    def _solve_strategy(self, profit_matrix) -> tuple[list[int], list[float]]:
+        
+        min_j = np.min(profit_matrix, axis=1)
+        max_i = np.max(profit_matrix, axis=0)
         
         # max_i min_j (mtx_{ij})
         maxmin = np.max(min_j)
 
         # max_i min_j (mtx_{ij})
         minmax = np.min(max_i)
+        
+        strategies = list(range(profit_matrix.shape[0]))
 
-        if(maxmin != minmax):
-            raise Exception(f'not pure solution. minmax: {minmax}, maxmin: {maxmin}')
+        if maxmin != minmax:
+            probabilities = self._probability_mixed_strategies(profit_matrix)
+            return (strategies, probabilities)
+        
+        probability = 1/len(list(filter(lambda x: x == minmax, min_j)))
+        probabilities = list(map(lambda x: probability if x == minmax else 0, min_j))    
+        
+        return (strategies, probabilities)
 
-        strategies = []
-        for (i, val) in enumerate(min_j):
-            if val == minmax:
-                strategies.append(i)
-
-        if len(strategies) == 1:
-            return int(strategies[0])
-
-        #if there is more than one solution we have to chose one of them accidentally
-        return int(random.choice(strategies))
+    
+    # min max trategy from game theory https://en.wikipedia.org/wiki/Nash_equilibrium
+    def choose_strategy(self, profit_matrix) -> int:
+        strategies, probabilities = self._solve_strategy(profit_matrix)
+        return int(random.choices(strategies, weights=probabilities)[0])
 
 
 class CalculateProfit:
