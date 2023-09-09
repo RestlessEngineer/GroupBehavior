@@ -1,15 +1,17 @@
 from Robot import *
 from RobotFileld import *
+from View import *
 
 class Simulation:
 
-    _filed: RobotField = None
-    _robots: list[Robot] = []
 
-
-    def __init__(self, field: RobotField, robots: list[Robot]):
+    def __init__(self, field: RobotField, robots: list[Robot], 
+                 colors: list[tuple[int, int, ]], view: View):
         self._field = field
         self._robots = robots
+        # TODO: put colors in another place
+        self._colors = colors
+        self._view = view
 
 
     def do_step(self):
@@ -28,9 +30,14 @@ class Simulation:
         for robot in self._robots:
             robot.move_strategy == MoveStrategy.PASSIVE
 
-
-    def get_robots(self):
-        return self._robots
+    def show(self):
+        self._view.draw_field(self._field)
+        #draw all robots
+        for (i, robot) in enumerate(self._robots):
+            self._view.draw_robot(self._field, robot.location, robot.get_direction(), self._colors[i])
+            self._view.draw_goal(self._field, robot.goal, colors[i])
+        
+        self._view.update_screen()
 
 
     def is_all_robots_on_goals(self):
@@ -87,5 +94,8 @@ def setting_active(adjacency: dict[int, list[int]], vertices: set[int]):
                     queue.append(adj)
 
     return states
+
+
+
 
 
