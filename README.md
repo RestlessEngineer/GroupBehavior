@@ -11,7 +11,11 @@ Thus, instead of searching for an optimal algorithm of robots' behavior at each 
 
 ## Current state
 
-Right now, a very simple game strategy is suggested. It is assumed that the most favorable direction for the next step will give 2 points. The direction that is opposite to it will give 0. The others will give 1. How it all works can be seen in examples/simple_field
+Right now, a very simple game strategy is suggested. It is assumed that the most favorable direction for the next step will give 2 points. The direction that is opposite to it will give 0. The others will give 1. How it all works can be seen in examples/simple_field. If you run the example you might get:
+ \
+![simple strategy](gifs/simple_demostration.gif) \
+ \
+In the gif above, the circles represent the targets the robots need to reach. The arrow on the robot shows the best direction for the robot. If the robot has reached the goal or has no way to leave, this is indicated by a circle.
 
 
 ## Acknowledgements
