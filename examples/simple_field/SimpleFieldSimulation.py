@@ -1,6 +1,7 @@
 from inspect import getsourcefile
 import os.path
 import sys
+import time
 
 current_path = os.path.abspath(getsourcefile(lambda:0))
 current_dir = os.path.dirname(current_path)
@@ -8,11 +9,11 @@ parent_dir = current_dir[:current_dir.rfind(os.path.sep)]
 parent_parent_dir = parent_dir[:parent_dir.rfind(os.path.sep)]
 sys.path.insert(0, parent_parent_dir)
 
-from Robot import *
-from RobotFileld import *
-from Simulation import *
-from View import *
-import time
+from Robot import Robot  # noqa: E402
+from RobotFileld import RobotField  # noqa: E402
+from Simulation import Simulation  # noqa: E402
+from View import View  # noqa: E402
+
 
 
 if __name__ == '__main__':

@@ -1,6 +1,8 @@
 from inspect import getsourcefile
 import os.path
 import sys
+import numpy as np
+import math
 
 current_path = os.path.abspath(getsourcefile(lambda:0))
 current_dir = os.path.dirname(current_path)
@@ -8,9 +10,8 @@ parent_dir = current_dir[:current_dir.rfind(os.path.sep)]
 parent_parent_dir = parent_dir[:parent_dir.rfind(os.path.sep)]
 sys.path.insert(0, parent_parent_dir)
 
-from Strategy import NashStrategy
-import numpy as np
-import math
+from Strategy import NashStrategy  # noqa: E402
+
 
 class TestNashStrategy:
     def test_pure_minmax(self):
@@ -40,10 +41,10 @@ class TestNashStrategy:
                                [-4, 5, 4]])
         
         _, probabilities = NashStrategy()._solve_strategy(profit_mtx)
-        stratey_num = NashStrategy().choose_strategy(profit_mtx)
         num_strategies = len(list(filter(lambda x: x > 0, probabilities)))
         assert math.isclose(np.sum(probabilities), 1.0)
-        assert math.isclose(probabilities[0], 9/17) and math.isclose(probabilities[1], 8/17) 
+        assert math.isclose(probabilities[0], 9/17) and \
+                math.isclose(probabilities[1], 8/17) 
         assert num_strategies == 2
 
     

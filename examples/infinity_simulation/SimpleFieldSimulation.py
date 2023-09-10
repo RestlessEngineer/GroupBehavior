@@ -1,6 +1,7 @@
 from inspect import getsourcefile
 import os.path
 import sys
+import time
 
 current_path = os.path.abspath(getsourcefile(lambda:0))
 current_dir = os.path.dirname(current_path)
@@ -8,11 +9,11 @@ parent_dir = current_dir[:current_dir.rfind(os.path.sep)]
 parent_parent_dir = parent_dir[:parent_dir.rfind(os.path.sep)]
 sys.path.insert(0, parent_parent_dir)
 
-from Robot import *
-from RobotFileld import *
-from Simulation import *
-from View import *
-import time
+from Robot import Robot  # noqa: E402
+from RobotFileld import RobotField  # noqa: E402
+from Simulation import Simulation  # noqa: E402
+from View import View  # noqa: E402
+
 
 
 if __name__ == '__main__':
@@ -40,7 +41,7 @@ if __name__ == '__main__':
               (0,255,255), (128,128,0), (255,0,255), (0,204,0), (128,128,128),
               (255,140,0), (240,230,140), (255,99,71), (178,34,34), (47,79,79)]
     
-    view = View((800, 800), (100, 100, 100), (245, 245, 245), save_gif=True)
+    view = View((800, 800), (100, 100, 100), (245, 245, 245), save_gif=False)
 
     simulation = Simulation(field, robots, colors, view, True)
     

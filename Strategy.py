@@ -1,5 +1,6 @@
-from RobotFileld import *
-from Graph import * 
+from RobotFileld import RobotField
+from Graph import Location, a_star_search, reconstruct_path 
+from Robot import Robot
 import numpy as np
 import random
 from scipy.optimize import linprog
@@ -12,7 +13,7 @@ class Strategy:
 
 class NashStrategy(Strategy): 
     
-    def _probability_mixed_strategies(self, profit_matrix: np.array) -> tuple[list[float]]:
+    def _probability_mixed_strategies(self, profit_matrix: np.array) -> tuple[list[float]]:  # noqa: E501
         min_profit = np.min(profit_matrix)
         #matrix must be positive
         if(min_profit <= 0):
@@ -47,7 +48,7 @@ class NashStrategy(Strategy):
             return (strategies, probabilities)
         
         probability = 1/len(list(filter(lambda x: x == minmax, min_j)))
-        probabilities = list(map(lambda x: probability if x == minmax else 0, min_j))    
+        probabilities = list(map(lambda x: probability if x == minmax else 0, min_j)) 
         
         return (strategies, probabilities)
 
@@ -60,13 +61,15 @@ class NashStrategy(Strategy):
 
 class CalculateProfit:
     
-    def __call__(self, field: RobotField, robot, robots) -> tuple[list[Location], list[float]]:
+    def __call__(self, field: RobotField, robot: Robot, 
+                 robots: list[Robot]) -> tuple[list[Location], list[float]]:
         pass
 
 
 class SimpleProfit(CalculateProfit):
 
-    def __call__(self, field: RobotField, ways: list[Location], main_way) -> tuple[list[Location], list[float]]:    
+    def __call__(self, field: RobotField, ways: list[Location], 
+                 main_way: Location) -> tuple[list[Location], list[float]]:    
     
         profit_coords = {}
         profits = []
@@ -82,7 +85,8 @@ class SimpleProfit(CalculateProfit):
 
 class ZeroCenterProfit(CalculateProfit):
     
-    def __call__(self, field: RobotField, ways: list[Location], main_way) -> tuple[list[Location], list[float]]:    
+    def __call__(self, field: RobotField, ways: list[Location], 
+                 main_way: Location) -> tuple[list[Location], list[float]]:
         profit_coords = {}
         profits = []
         for (i, way) in enumerate(ways):

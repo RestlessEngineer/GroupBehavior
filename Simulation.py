@@ -1,6 +1,8 @@
-from Robot import *
-from RobotFileld import *
-from View import *
+from Robot import Robot, MoveStrategy
+from RobotFileld import RobotField
+from View import View
+from Graph import Location
+import random
 import itertools
 
 class Simulation:
@@ -34,13 +36,14 @@ class Simulation:
             robot.do_next_step(except_one)
         
         for robot in self._robots:
-            robot.move_strategy == MoveStrategy.PASSIVE
+            robot.move_strategy = MoveStrategy.PASSIVE
 
     def show(self):
         self._view.draw_field(self._field)
         #draw all robots
         for (i, robot) in enumerate(self._robots):
-            self._view.draw_robot(self._field, robot.location, robot.get_direction(), self._colors[i])
+            self._view.draw_robot(self._field, robot.location, 
+                                  robot.get_direction(), self._colors[i])
             self._view.draw_goal(self._field, robot.goal, self._colors[i])
         
         self._view.update_screen()
@@ -94,7 +97,7 @@ def setting_active(adjacency: dict[int, list[int]], vertices: set[int]):
             states[key] = 0   
 
     min = 10000
-    for (key, adj) in adjacency.items():
+    for (_, adj) in adjacency.items():
         if len(adj) < min and len(adj) > 0:
             min = len(adj)
     

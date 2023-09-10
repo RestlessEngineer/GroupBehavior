@@ -1,5 +1,6 @@
 
-from Graph import *
+from Graph import SquareGrid, GridLocation
+from typing import Iterator
 
 
 def parse_value(line: str, name: str) -> str:
@@ -29,9 +30,11 @@ class RobotField(SquareGrid):
             for i, line in enumerate(f):
                 line = ''.join(line.split())
                 if i >= row:
-                    raise Exception(f'wrong amount of row. row must be {row}, current row = {i}')
+                    raise Exception(f'wrong amount of row. row must be {row},\
+                                     current row = {i}')
                 if not len(line) == col:
-                    raise Exception(f'wnamerong amount of col. col must be {col}, current col = {len(line)}')
+                    raise Exception(f'wnamerong amount of col. col must be {col},\
+                                     current col = {len(line)}')
                 #line parsing
                 for j, s in enumerate(line):
                     if s == '#':

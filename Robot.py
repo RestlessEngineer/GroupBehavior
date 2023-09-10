@@ -1,9 +1,8 @@
-from RobotFileld import *
-from Graph import * 
-from Strategy import *
+from RobotFileld import RobotField
+from Graph import GridLocation, reconstruct_path, a_star_search
+from Strategy import Strategy, NashStrategy, CalculateProfit, SimpleProfit
 import numpy as np
 from enum import Enum
-import random
 
 
 class MoveStrategy(Enum):
@@ -14,15 +13,25 @@ class Robot:
     
     OBSERVE_RADIUS: float = 4.0
 
-    def __init__(self, field: RobotField, location: GridLocation, goal: GridLocation, 
-                 strategy = NashStrategy(), calc_profit = SimpleProfit()):
+    def __init__(self, field: RobotField, 
+                 location: GridLocation, 
+                 goal: GridLocation, 
+                 strategy: Strategy | None = None, 
+                 calc_profit: CalculateProfit | None = None):
         self._field = field
         self.location = location
         self.goal = goal
         self.move_strategy = MoveStrategy.PASSIVE
         self.main_way = location
-        self.strategy = strategy
-        self.calculate_profit = calc_profit 
+        if strategy is None:
+            self.strategy = NashStrategy()
+        else:
+            self.strategy = strategy
+        if calc_profit is None:
+            self.calculate_profit = SimpleProfit()
+        else:
+            self.calculate_profit = calc_profit
+             
         self._update_main_way()
 
 
