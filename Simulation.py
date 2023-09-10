@@ -1,17 +1,23 @@
 from Robot import *
 from RobotFileld import *
 from View import *
+import itertools
 
 class Simulation:
 
 
-    def __init__(self, field: RobotField, robots: list[Robot], 
-                 colors: list[tuple[int, int, ]], view: View):
+    def __init__(self, field: RobotField, 
+                 robots: list[Robot], 
+                 colors: list[tuple[int, int, ]], 
+                 view: View,
+                 infinity: bool = False):
+        
         self._field = field
         self._robots = robots
         # TODO: put colors in another place
         self._colors = colors
         self._view = view
+        self._infinity = infinity
 
 
     def do_step(self):
@@ -35,16 +41,31 @@ class Simulation:
         #draw all robots
         for (i, robot) in enumerate(self._robots):
             self._view.draw_robot(self._field, robot.location, robot.get_direction(), self._colors[i])
-            self._view.draw_goal(self._field, robot.goal, colors[i])
+            self._view.draw_goal(self._field, robot.goal, self._colors[i])
         
         self._view.update_screen()
 
 
     def is_all_robots_on_goals(self):
+        if self._infinity:
+            for robot in filter(lambda x: x.goal == x.location, self._robots):
+                robot.goal = self._update_goal(robot)
+            return False
+        
         for robot in self._robots:
             if robot.location != robot.goal:
                 return False
         return True
+
+
+    def _update_goal(self, robot: Robot) -> Location:
+        goals = [robot.goal for robot in self._robots]
+        x_range = range(self._field.width)
+        y_range = range(self._field.height)
+        coords = list(itertools.product(x_range, y_range))
+        free_coords = list(filter(lambda x: x not in goals, coords))
+        new_goal = random.sample(free_coords,1)[0]
+        return new_goal
 
 
     def _make_adjastment(self):
