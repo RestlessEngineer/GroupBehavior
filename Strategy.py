@@ -1,19 +1,18 @@
 from RobotFileld import RobotField
 from Graph import Location, a_star_search, reconstruct_path 
-from Robot import Robot
 import numpy as np
 import random
 from scipy.optimize import linprog
 
 class Strategy:
     # define the best strategy
-    def choose_strategy(self, profit_matix) -> int:
+    def choose_strategy(self, profit_matix: np.ndarray) -> int:
         pass
         
 
 class NashStrategy(Strategy): 
     
-    def _probability_mixed_strategies(self, profit_matrix: np.array) -> tuple[list[float]]:  # noqa: E501
+    def _probability_mixed_strategies(self, profit_matrix: np.ndarray) -> list[float]: 
         min_profit = np.min(profit_matrix)
         #matrix must be positive
         if(min_profit <= 0):
@@ -26,11 +25,11 @@ class NashStrategy(Strategy):
         f = np.ones(row) # minimisated function 
         strategy_bounds = [(0, None)]*row
         res = linprog(f, A_ub=A, b_ub=b, bounds=strategy_bounds)
-        return res.x/np.sum(res.x)
+        return list(res.x/np.sum(res.x))
 
 
 
-    def _solve_strategy(self, profit_matrix) -> tuple[list[int], list[float]]:
+    def _solve_strategy(self, profit_matrix: np.ndarray) -> tuple[list[int], list[float]]:  # noqa: E501
         
         min_j = np.min(profit_matrix, axis=1)
         max_i = np.max(profit_matrix, axis=0)
@@ -61,20 +60,21 @@ class NashStrategy(Strategy):
 
 class CalculateProfit:
     
-    def __call__(self, field: RobotField, robot: Robot, 
-                 robots: list[Robot]) -> tuple[list[Location], list[float]]:
+    def __call__(self, field: RobotField, robot, 
+                 robots) -> tuple[dict[int, Location], list[float]]:
         pass
 
 
 class SimpleProfit(CalculateProfit):
 
     def __call__(self, field: RobotField, ways: list[Location], 
-                 main_way: Location) -> tuple[list[Location], list[float]]:    
+                 main_way: Location) -> tuple[dict[int, Location], list[float]]:    
     
-        profit_coords = {}
-        profits = []
+        profit_coords: dict[int, Location] = {}
+        profits: list[float] = []
+
         for (i, way) in enumerate(ways):
-            came_from, cost_so_far = a_star_search(field, main_way, way)
+            came_from, _ = a_star_search(field, main_way, way)
             path = reconstruct_path(came_from, main_way, way)
             profit = 2 - len(path)
             profits.append(profit)
@@ -86,12 +86,14 @@ class SimpleProfit(CalculateProfit):
 class ZeroCenterProfit(CalculateProfit):
     
     def __call__(self, field: RobotField, ways: list[Location], 
-                 main_way: Location) -> tuple[list[Location], list[float]]:
-        profit_coords = {}
-        profits = []
+                 main_way: Location) -> tuple[dict[int, Location], list[float]]:
+        
+        profit_coords: dict[int, Location] = {}
+        profits: list[float] = []
+
         for (i, way) in enumerate(ways):
             if way != self.location:
-                came_from, cost_so_far = a_star_search(field, main_way, way)
+                came_from, _ = a_star_search(field, main_way, way)
                 path = reconstruct_path(came_from, main_way, way)
                 profit = 2 - len(path)
                 profits.append(profit)
