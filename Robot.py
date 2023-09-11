@@ -8,6 +8,7 @@ from enum import Enum
 class MoveStrategy(Enum):
     PASSIVE = 0
     ACTIVE = 1
+    ONGOAL = 2
 
 class Robot:
     
@@ -51,7 +52,7 @@ class Robot:
 
     def _update_main_way(self):
         # define main way
-        came_from, cost_so_far = a_star_search(self._field, self.location, self.goal)
+        came_from, _ = a_star_search(self._field, self.location, self.goal)
         path = reconstruct_path(came_from, self.location, self.goal)
         # next value after path is main
         if len(path) > 1:
@@ -91,11 +92,16 @@ class Robot:
         ways = list(filter(lambda x: x not in robots_locations, ways))
 
         # filter all neighbor strategies for passive robots 
-        if(self.move_strategy == MoveStrategy.PASSIVE):
+        if self.move_strategy is MoveStrategy.PASSIVE:
             for robot in robots:
                # robot always able to stand in location
                neighbors = list(filter(lambda x: x != self.location, robot.get_ways()))
-               ways = list(filter(lambda x: x not in neighbors, ways)) 
+               ways = list(filter(lambda x: x not in neighbors, ways))
+            return self.get_strategy_profits(ways)
+
+        if self.move_strategy is MoveStrategy.ONGOAL:
+            ways = [self.location]
+            return self.get_strategy_profits(ways) 
     
         return self.get_strategy_profits(ways)
             

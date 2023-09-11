@@ -35,8 +35,19 @@ class Simulation:
             except_one = list(filter(lambda x: x != robot, robots))
             robot.do_next_step(except_one)
         
+        self._update_strategy()
+        
+
+    def _update_strategy(self):
         for robot in self._robots:
+            if robot.location == robot.goal:
+                robot.move_strategy = MoveStrategy.ONGOAL
+
+        for robot in filter(lambda x: x.move_strategy is not MoveStrategy.ONGOAL,
+                             self._robots):
             robot.move_strategy = MoveStrategy.PASSIVE
+
+
 
     def show(self):
         self._view.draw_field(self._field)
@@ -80,7 +91,9 @@ class Simulation:
         for robot in self._robots:
             except_one = list(filter(lambda x: x != robot, robots))
             for other_robot in except_one:
-                if robot.distance(other_robot) < 2:
+                if robot.distance(other_robot) < 2 and \
+                    robot.move_strategy is not MoveStrategy.ONGOAL:
+                    
                     adjacencyList[robot].append(other_robot)
         return adjacencyList
 
