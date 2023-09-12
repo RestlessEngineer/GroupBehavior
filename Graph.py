@@ -84,6 +84,11 @@ class SquareGrid:
         self.height = height
         self.walls: list[GridLocation] = []
     
+    def reset(self, width: int, height: int):
+        self.width = width
+        self.height = height
+        self.walls: list[GridLocation] = []
+
     def in_bounds(self, id: GridLocation) -> bool:
         (x, y) = id
         return 0 <= x < self.width and 0 <= y < self.height

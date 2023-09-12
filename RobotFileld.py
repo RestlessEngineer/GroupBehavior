@@ -1,5 +1,5 @@
 
-from Graph import SquareGrid, WeightedGraph, Location
+from Graph import SquareGrid, WeightedGraph, GridLocation
 from typing import Iterator
 
 def parse_value(line: str, name: str) -> str:
@@ -16,7 +16,7 @@ class RobotField(SquareGrid, WeightedGraph):
 
     def __init__(self, width: int, height: int):
         super().__init__(width, height)
-        self._robots_locations: list[Location] = []
+        self._robots_locations: list[GridLocation] = []
 
 
     def reset(self, width: int, height: int):
@@ -45,11 +45,11 @@ class RobotField(SquareGrid, WeightedGraph):
                         self.walls.append((i,j))
 
 
-    def passrobots(self, id: Location) -> bool:
+    def passrobots(self, id: GridLocation) -> bool:
         return id not in self._robots_locations
 
 
-    def push_robot_location(self, location: Location):
+    def push_robot_location(self, location: GridLocation):
         self._robots_locations.append(location)
     
 
@@ -57,11 +57,11 @@ class RobotField(SquareGrid, WeightedGraph):
         self._robots_locations.clear()
 
 
-    def neighbors(self, id: Location) -> Iterator[Location]:
+    def neighbors(self, id: GridLocation) -> Iterator[GridLocation]:
         results = super().neighbors(id)
         results = filter(self.passrobots, results)
         return results
 
 
-    def cost(self, from_id: Location, to_id: Location) -> float:
+    def cost(self, from_id: GridLocation, to_id: GridLocation) -> float:
         return 1

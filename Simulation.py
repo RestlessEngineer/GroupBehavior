@@ -1,7 +1,7 @@
 from Robot import Robot, MoveStrategy
 from RobotFileld import RobotField
 from View import View
-from Graph import Location
+from Graph import GridLocation
 import random
 import itertools
 
@@ -40,7 +40,7 @@ class Simulation:
 
     def _update_strategy(self):
         for robot in self._robots:
-            if robot.location == robot.goal:
+            if robot.location is robot.goal:
                 robot.move_strategy = MoveStrategy.ONGOAL
 
         for robot in filter(lambda x: x.move_strategy is not MoveStrategy.ONGOAL,
@@ -72,7 +72,7 @@ class Simulation:
         return True
 
 
-    def _update_goal(self, robot: Robot) -> Location:
+    def _update_goal(self, robot: Robot) -> GridLocation:
         goals = [robot.goal for robot in self._robots]
         x_range = range(self._field.width)
         y_range = range(self._field.height)

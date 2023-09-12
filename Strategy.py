@@ -1,12 +1,15 @@
+import abc
 from RobotFileld import RobotField
-from Graph import Location, a_star_search, reconstruct_path 
+from Graph import GridLocation, a_star_search, reconstruct_path 
 import numpy as np
 import random
 from scipy.optimize import linprog
 
-class Strategy:
-    # define the best strategy
+class Strategy(metaclass=abc.ABCMeta):
+    
+    @abc.abstractmethod
     def choose_strategy(self, profit_matix: np.ndarray) -> int:
+        """define the best strategy"""
         pass
         
 
@@ -58,19 +61,20 @@ class NashStrategy(Strategy):
         return int(random.choices(strategies, weights=probabilities)[0])
 
 
-class CalculateProfit:
+class CalculateProfit(metaclass=abc.ABCMeta):
     
-    def __call__(self, field: RobotField, robot, 
-                 robots) -> tuple[dict[int, Location], list[float]]:
+    @abc.abstractmethod
+    def __call__(self, field: RobotField, ways: list[GridLocation], 
+                main_way: GridLocation) -> tuple[dict[int, GridLocation], list[float]]:
         pass
 
 
 class SimpleProfit(CalculateProfit):
 
-    def __call__(self, field: RobotField, ways: list[Location], 
-                 main_way: Location) -> tuple[dict[int, Location], list[float]]:    
+    def __call__(self, field: RobotField, ways: list[GridLocation], 
+                 main_way: GridLocation) -> tuple[dict[int, GridLocation], list[float]]:
     
-        profit_coords: dict[int, Location] = {}
+        profit_coords: dict[int, GridLocation] = {}
         profits: list[float] = []
 
         for (i, way) in enumerate(ways):
@@ -85,14 +89,18 @@ class SimpleProfit(CalculateProfit):
 
 class ZeroCenterProfit(CalculateProfit):
     
-    def __call__(self, field: RobotField, ways: list[Location], 
-                 main_way: Location) -> tuple[dict[int, Location], list[float]]:
-        
-        profit_coords: dict[int, Location] = {}
+    # TODO: think over about that
+    def __init__(self, location: GridLocation):
+        self._location = location
+
+    def __call__(self, field: RobotField, ways: list[GridLocation], 
+                 main_way: GridLocation) -> tuple[dict[int, GridLocation], list[float]]:
+
+        profit_coords: dict[int, GridLocation] = {}
         profits: list[float] = []
 
         for (i, way) in enumerate(ways):
-            if way != self.location:
+            if way != self._location:
                 came_from, _ = a_star_search(field, main_way, way)
                 path = reconstruct_path(came_from, main_way, way)
                 profit = 2 - len(path)

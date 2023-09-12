@@ -1,3 +1,4 @@
+from __future__ import annotations
 from RobotFileld import RobotField
 from Graph import GridLocation, reconstruct_path, a_star_search
 from Strategy import Strategy, NashStrategy, CalculateProfit, SimpleProfit
@@ -17,21 +18,17 @@ class Robot:
     def __init__(self, field: RobotField, 
                  location: GridLocation, 
                  goal: GridLocation, 
-                 strategy: Strategy | None = None, 
-                 calc_profit: CalculateProfit | None = None):
+                 strategy: Strategy = NashStrategy(),   # noqa: B008
+                 calc_profit: CalculateProfit = SimpleProfit()):  # noqa: B008
+        
         self._field = field
         self.location = location
         self.goal = goal
         self.move_strategy = MoveStrategy.PASSIVE
         self.main_way = location
-        if strategy is None:
-            self.strategy = NashStrategy()
-        else:
-            self.strategy = strategy
-        if calc_profit is None:
-            self.calculate_profit = SimpleProfit()
-        else:
-            self.calculate_profit = calc_profit
+ 
+        self.strategy = strategy
+        self.calculate_profit = calc_profit
              
         self._update_main_way()
 
@@ -106,13 +103,13 @@ class Robot:
         return self.get_strategy_profits(ways)
             
 
-    def distance(self, robot):
+    def distance(self, robot: Robot):
         def loc_distance(loc1: GridLocation, loc2: GridLocation) -> float:
             return np.sqrt((loc1[0] - loc2[0])**2 + (loc1[1] - loc2[1])**2)
         return loc_distance(self.location, robot.location)
 
 
-    def do_next_step(self, robots) -> GridLocation:
+    def do_next_step(self, robots: list[Robot]) -> GridLocation:
         if(self.location == self.goal):
             return self.location
         
@@ -144,6 +141,3 @@ class Robot:
 
         # return strategy coords
         return self.location  
-    
-    
-    
